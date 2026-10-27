@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COSTOTAL - Calculadora de Gomitas</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        fredoka: ['Fredoka', 'sans-serif'],
+                        quicksand: ['Quicksand', 'sans-serif'],
+                    },
+                    colors: {
+                        candyPink: '#FF85A1',
+                        candyYellow: '#FBBF24',
+                        candyPurple: '#C084FC',
+                        candyBlue: '#38BDF8',
+                        candyGreen: '#4ADE80',
+                        bgSoft: '#FFF5F7'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background-color: #FFF5F7;
+            background-image: radial-gradient(#FFD1DC 1.5px, transparent 1.5px);
+            background-size: 24px 24px;
+        }
+        h1, h2, h3, .gummy-title {
+            font-family: 'Fredoka', sans-serif;
+        }
+        .candy-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
+            border: 3px solid #FFC2D1;
+            box-shadow: 0 10px 25px -5px rgba(255, 133, 161, 0.2);
+        }
+        .btn-candy {
+            transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .btn-candy:hover {
+            transform: translateY(-2px) scale(1.02);
+        }
+        .btn-candy:active {
+            transform: translateY(1px) scale(0.98);
+        }
+    </style>
+</head>
+<body class="min-h-screen text-slate-800 p-4 md:p-8">
+
+    <div class="max-w-5xl mx-auto">
+        <!-- Encabezado Principal -->
+        <header class="text-center mb-8 bg-white/80 p-6 rounded-3xl border-4 border-candyPink shadow-lg relative overflow-hidden">
+            <div class="absolute -top-6 -right-6 w-20 h-20 bg-candyYellow rounded-full opacity-40 blur-xl"></div>
+            <div class="absolute -bottom-6 -left-6 w-20 h-20 bg-candyPurple rounded-full opacity-40 blur-xl"></div>
+            
+            <div class="inline-flex items-center gap-3 bg-pink-100 text-candyPink px-4 py-1.5 rounded-full font-bold text-sm mb-3">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 11H9v-2h2v2zm0-4H9V5h2v4z"/></svg>
+                Liceo Pedagógico Cundinamarca - Proyecto Algoritmos
+            </div>
+            <h1 class="text-4xl md:text-5xl font-bold text-pink-600 tracking-wide mb-2">
+                🍬 COSTOTAL 🍭
+            </h1>
+            <p class="text-slate-600 font-semibold text-lg">Calculadora de Compra de Gomitas y Golosinas</p>
+        </header>
+
+        <!-- Toast de Notificaciones -->
+        <div id="toast" class="hidden fixed top-5 right-5 z-50 bg-slate-800 text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-3 border-2 border-candyYellow transition-all duration-300">
+            <span id="toastIcon">⚠️</span>
+            <span id="toastMsg" class="font-bold">Notificación</span>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            <!-- Columna Izquierda: Formulario y Estadísticas -->
+            <div class="lg:col-cols-5 space-y-6 lg:col-span-5">
+                
+                <!-- Formulario -->
+                <div class="candy-card p-6 rounded-3xl">
+                    <h2 class="text-2xl font-bold text-pink-600 mb-4 flex items-center gap-2">
+                        <span>✏️</span> <span id="formTitle">Agregar Gomitas</span>
+                    </h2>
+
+                    <form id="gummyForm" onsubmit="handleSubmit(event)" class="space-y-4">
+                        <input type="hidden" id="editIndex" value="-1">
+                        
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-1">Tipo / Nombre de Gomita</label>
+                            <input type="text" id="gummyName" placeholder="Ej. Gomitas Ácidas, Ositos, Aros" required
+                                class="w-full px-4 py-3 rounded-xl border-2 border-pink-200 focus:border-candyPink focus:ring-2 focus:ring-pink-200 outline-none transition font-semibold text-slate-700">
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-1">Precio x Paquete ($)</label>
+                                <input type="number" id="gummyPrice" min="1" step="50" placeholder="Ej. 2500" required
+                                    class="w-full px-4 py-3 rounded-xl border-2 border-pink-200 focus:border-candyPink focus:ring-2 focus:ring-pink-200 outline-none transition font-semibold text-slate-700">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-slate-700 mb-1">Cantidad</label>
+                                <input type="number" id="gummyQty" min="1" step="1" placeholder="Ej. 3" required
+                                    class="w-full px-4 py-3 rounded-xl border-2 border-pink-200 focus:border-candyPink focus:ring-2 focus:ring-pink-200 outline-none transition font-semibold text-slate-700">
+                            </div>
+                        </div>
+
+                        <!-- Vista previa del subtotal rápido -->
+                        <div class="bg-pink-50 p-3 rounded-xl border border-pink-200 text-center">
+                            <span class="text-xs font-bold text-pink-500 uppercase tracking-wider">Subtotal estimado</span>
+                            <div class="text-xl font-bold text-pink-600" id="previewSubtotal">$0</div>
+                        </div>
+
+                        <div class="flex gap-2 pt-2">
+                            <button type="submit" id="btnSubmit" 
+                                class="btn-candy flex-1 bg-candyPink hover:bg-pink-500 text-white font-bold py-3.5 px-4 rounded-xl shadow-md flex items-center justify-center gap-2">
+                                <span>➕</span> <span id="btnSubmitText">Calcular y Agregar</span>
+                            </button>
+                            <button type="button" id="btnCancel" onclick="resetForm()" 
+                                class="hidden btn-candy bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-3.5 px-4 rounded-xl">
+                                Cancelar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Resumen en Tiempo Real -->
+                <div class="candy-card p-6 rounded-3xl bg-gradient-to-br from-white to-pink-50">
+                    <h3 class="text-xl font-bold text-slate-700 mb-4 flex items-center gap-2">
+                        <span>📊</span> Resumen de Compra
+                    </h3>
+                    
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center p-3 bg-white rounded-xl border border-pink-100 shadow-sm">
+                            <span class="font-bold text-slate-600">Tipos de gomitas:</span>
+                            <span class="font-extrabold text-lg text-purple-600" id="statTypes">0</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-white rounded-xl border border-pink-100 shadow-sm">
+                            <span class="font-bold text-slate-600">Total paquetes:</span>
+                            <span class="font-extrabold text-lg text-blue-600" id="statTotalQty">0</span>
+                        </div>
+                        <div class="flex justify-between items-center p-4 bg-candyPink text-white rounded-2xl shadow-md">
+                            <span class="font-bold text-lg">GRAN TOTAL:</span>
+                            <span class="font-black text-2xl" id="statGrandTotal">$0</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Columna Derecha: Lista de Productos -->
+            <div class="lg:col-span-7">
+                <div class="candy-card p-6 rounded-3xl h-full flex flex-col">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-pink-600 flex items-center gap-2">
+                            <span>🛒</span> Lista de Compras
+                        </h2>
+                        <button onclick="clearAll()" class="text-xs font-bold text-red-400 hover:text-red-600 underline">
+                            Vaciar lista
+                        </button>
+                    </div>
+
+                    <!-- Tabla de productos -->
+                    <div class="overflow-x-auto flex-1">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="border-b-2 border-pink-100 text-slate-500 text-sm">
+                                    <th class="pb-3 font-bold">Gomita</th>
+                                    <th class="pb-3 font-bold text-center">Precio Unit.</th>
+                                    <th class="pb-3 font-bold text-center">Cant.</th>
+                                    <th class="pb-3 font-bold text-right">Subtotal</th>
+                                    <th class="pb-3 font-bold text-center">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="gummyTableBody" class="divide-y divide-pink-50 font-medium">
+                                <!-- Filas dinámicas -->
+                            </tbody>
+                        </table>
+
+                        <!-- Estado Vacío -->
+                        <div id="emptyState" class="text-center py-12">
+                            <div class="text-5xl mb-3">🍬</div>
+                            <p class="text-slate-400 font-bold">No has agregado ninguna gomita aún.</p>
+                            <p class="text-xs text-slate-400">Ingresa los datos en el formulario para empezar a calcular.</p>
+                        </div>
+                    </div>
+
+                    <!-- Footer de comprobación rápida anti-error -->
+                    <div class="mt-6 pt-4 border-t border-pink-100 flex items-center justify-between text-xs text-slate-400">
+                        <span>Algoritmo de cálculo verificado: Total = Σ(Precio × Cantidad)</span>
+                        <span class="font-bold text-pink-400">COSTOTAL v1.0</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Script de Lógica de Programación (JavaScript Vanilla) -->
+    <script>
+        // Arreglo para almacenar los items de gomitas
+        let gummyList = [];
+
+        // Referencias del DOM
+        const gummyForm = document.getElementById('gummyForm');
+        const gummyNameInput = document.getElementById('gummyName');
+        const gummyPriceInput = document.getElementById('gummyPrice');
+        const gummyQtyInput = document.getElementById('gummyQty');
+        const previewSubtotalEl = document.getElementById('previewSubtotal');
+        const gummyTableBody = document.getElementById('gummyTableBody');
+        const emptyState = document.getElementById('emptyState');
+
+        // Referencias de Estadísticas
+        const statTypes = document.getElementById('statTypes');
+        const statTotalQty = document.getElementById('statTotalQty');
+        const statGrandTotal = document.getElementById('statGrandTotal');
+
+        // Botones y títulos
+        const formTitle = document.getElementById('formTitle');
+        const btnSubmitText = document.getElementById('btnSubmitText');
+        const btnCancel = document.getElementById('btnCancel');
+        const editIndexInput = document.getElementById('editIndex');
+
+        // Escuchar cambios para subtotal en vivo en el formulario
+        [gummyPriceInput, gummyQtyInput].forEach(input => {
+            input.addEventListener('input', calculatePreview);
+        });
+
+        function calculatePreview() {
+            const p = parseFloat(gummyPriceInput.value) || 0;
+            const q = parseInt(gummyQtyInput.value) || 0;
+            const sub = p * q;
+            previewSubtotalEl.textContent = formatCurrency(sub);
+        }
+
+        // Formateador de moneda
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('es-CO', {
+                style: 'currency',
+                currency: 'COP',
+                minimumFractionDigits: 0
+            }).format(amount);
+        }
+
+        // Mostrar Notificación Toast
+        function showToast(msg, icon = '⚠️') {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMsg').textContent = msg;
+            document.getElementById('toastIcon').textContent = icon;
+            toast.classList.remove('hidden');
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 3000);
+        }
+
+        // Manejador del Formulario (Agregar / Editar)
+        function handleSubmit(event) {
+            event.preventDefault();
+
+            const name = gummyNameInput.value.trim();
+            const price = parseFloat(gummyPriceInput.value);
+            const qty = parseInt(gummyQtyInput.value);
+            const editIndex = parseInt(editIndexInput.value);
+
+            // Validaciones
+            if (!name || price <= 0 || qty <= 0) {
+                showToast("Por favor ingresa un precio y cantidad mayores a cero.");
+                return;
+            }
+
+            // Validación de Duplicados (Solo si se está agregando un nuevo item)
+            if (editIndex === -1) {
+                const duplicate = gummyList.some(item => item.name.toLowerCase() === name.toLowerCase());
+                if (duplicate) {
+                    showToast(`La gomita "${name}" ya está en la lista. Edítala o cambia el nombre.`, '🚫');
+                    return;
+                }
+            }
+
+            const subtotal = price * qty;
+
+            if (editIndex === -1) {
+                // Agregar nuevo
+                gummyList.push({ name, price, qty, subtotal, purchased: false });
+                showToast("¡Gomita agregada con éxito!", "✅");
+            } else {
+                // Modificar existente
+                gummyList[editIndex] = { 
+                    ...gummyList[editIndex], 
+                    name, 
+                    price, 
+                    qty, 
+                    subtotal 
+                };
+                showToast("¡Compra actualizada correctamente!", "✏️");
+            }
+
+            resetForm();
+            render();
+        }
+
+        // Renderizar Tabla y Totales
+        function render() {
+            gummyTableBody.innerHTML = '';
+
+            if (gummyList.length === 0) {
+                emptyState.classList.remove('hidden');
+            } else {
+                emptyState.classList.add('hidden');
+            }
+
+            let totalQty = 0;
+            let grandTotal = 0;
+
+            gummyList.forEach((item, index) => {
+                totalQty += item.qty;
+                grandTotal += item.subtotal;
+
+                const tr = document.createElement('tr');
+                tr.className = `hover:bg-pink-50/50 transition ${item.purchased ? 'bg-green-50/60 line-through text-slate-400' : ''}`;
+
+                tr.innerHTML = `
+                    <td class="py-3 font-bold text-slate-700 flex items-center gap-2">
+                        <button onclick="togglePurchased(${index})" title="Marcar como guardado" class="text-base">
+                            ${item.purchased ? '✅' : '⚪'}
+                        </button>
+                        <span>${escapeHtml(item.name)}</span>
+                    </td>
+                    <td class="py-3 text-center">${formatCurrency(item.price)}</td>
+                    <td class="py-3 text-center font-bold">${item.qty}</td>
+                    <td class="py-3 text-right font-bold text-pink-600">${formatCurrency(item.subtotal)}</td>
+                    <td class="py-3 text-center">
+                        <div class="flex items-center justify-center gap-1">
+                            <button onclick="editItem(${index})" class="p-1.5 hover:bg-pink-100 rounded-lg text-pink-600 transition" title="Editar">
+                                ✏️
+                            </button>
+                            <button onclick="deleteItem(${index})" class="p-1.5 hover:bg-red-100 rounded-lg text-red-500 transition" title="Eliminar">
+                                🗑️
+                            </button>
+                        </div>
+                    </td>
+                `;
+                gummyTableBody.appendChild(tr);
+            });
+
+            // Actualizar estadísticas
+            statTypes.textContent = gummyList.length;
+            statTotalQty.textContent = totalQty;
+            statGrandTotal.textContent = formatCurrency(grandTotal);
+        }
+
+        // Editar Item
+        function editItem(index) {
+            const item = gummyList[index];
+            gummyNameInput.value = item.name;
+            gummyPriceInput.value = item.price;
+            gummyQtyInput.value = item.qty;
+            editIndexInput.value = index;
+
+            formTitle.textContent = "Editar Gomita";
+            btnSubmitText.textContent = "Guardar Cambios";
+            btnCancel.classList.remove('hidden');
+
+            calculatePreview();
+            gummyNameInput.focus();
+        }
+
+        // Eliminar Item
+        function deleteItem(index) {
+            const name = gummyList[index].name;
+            gummyList.splice(index, 1);
+            showToast(`Se eliminó "${name}" de la lista.`, "🗑️");
+            if (parseInt(editIndexInput.value) === index) {
+                resetForm();
+            }
+            render();
+        }
+
+        // Marcar como comprado/revisado
+        function togglePurchased(index) {
+            gummyList[index].purchased = !gummyList[index].purchased;
+            render();
+        }
+
+        // Limpiar todo
+        function clearAll() {
+            if (gummyList.length === 0) return;
+            gummyList = [];
+            resetForm();
+            render();
+            showToast("Se ha limpiado toda la lista.", "🧹");
+        }
+
+        // Resetear formulario
+        function resetForm() {
+            gummyForm.reset();
+            editIndexInput.value = "-1";
+            formTitle.textContent = "Agregar Gomitas";
+            btnSubmitText.textContent = "Calcular y Agregar";
+            btnCancel.classList.add('hidden');
+            previewSubtotalEl.textContent = "$0";
+        }
+
+        // Función de escape para seguridad de texto
+        function escapeHtml(text) {
+            return text.replace(/[&<>"']/g, function(m) {
+                return {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#039;'
+                }[m];
+            });
+        }
+
+        // Inicializar render
+        render();
+    </script>
+</body>
+</html>
